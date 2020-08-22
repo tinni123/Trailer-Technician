@@ -18,13 +18,13 @@ A simple package of scripts to download movie trailers for your local library.  
 1. Install [FFmpeg](https://github.com/FFmpeg/FFmpeg)
 
 2. Install python requirements
-'''
+```
 sudo python3 -m pip3 install -r requirements.txt
-'''
+```
 
 ## Settings
 Settings are assembled as a dict and passed to the instantiation of the object.  If no options are specified then the default options are used.  TMDB api key is required.
-'''
+```
 tmdb_api_key=1234567abcdef,
 options = {
     'min_resolution': 720,              # Default: 720
@@ -32,6 +32,7 @@ options = {
     'custom_directory': '',             # Default: None
     'language': 'en',                   # Default: en
 }
+```
 
 ## Usage
 
@@ -40,13 +41,13 @@ Configure a 'Connection' in Radarr to call this script. The environment variable
 
 ### To download trailers for each of your movies in your library
 Using your CLI make a call to this script making use of the following arguments.
-'''
+```
 -a your_tmdb_api_key                        # Required
 -d directory_containing_movie_directories   # Required
 -h maximum_resolution                       # Optional
 -m minimum_resolution                       # Optional
 -l language                                 # Optional
-'''
+```
 
 #### Library Structure
 This script assumes the following structure and may not work correctly if structured otherwise.  Year and IMDB ids are not required in the paths below.
