@@ -52,8 +52,12 @@ Using your CLI make a call to this script making use of the following arguments.
 #### Library Structure
 This script assumes the following structure and may not work correctly if structured otherwise.  Year and IMDB ids are not required in the paths below.
 
--Movies
----Some Movie (2010)
------Some Movie File (tt123456).mkv
----Some other Movie (2011)
------Some other Movie File (tt654321).mkv
+```
+Movies
+    Some Movie (2010)
+        Some Movie File (tt123456).mkv
+        Some Movie File-trailer.mp4
+    Some other Movie (2011)
+        Some other Movie File (tt654321).mkv
+        some other Movie File-trailer.mp4
+```
