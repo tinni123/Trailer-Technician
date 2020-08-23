@@ -7,6 +7,6 @@ if sys.version_info[0] < 3:
     sys.exit()
 
 # Defaults
-NAME = 'Trailer-Technician'
+NAME = 'TrailerTechnician'
 VERSION = '1.0.0'
 DESCRIPTION = 'Download trailers for your local movie library.'
