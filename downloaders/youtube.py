@@ -1,8 +1,9 @@
 import youtube_dl
 from utils.logger import Logger
-from utils.config import config
+from utils.config import get_config
 
 log=Logger().get_log(__name__)
+config = get_config()
 
 # Download trailer from youtube
 def download_youtube(tmdb_videos, filepath):

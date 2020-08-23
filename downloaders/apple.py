@@ -8,10 +8,11 @@ from unidecode import unidecode
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 from utils.logger import Logger
-from utils.config import config
+from utils.config import get_config
 
 trailer_url = 'https://trailers.apple.com/'
 log = Logger().get_log(__name__)
+config = get_config()
 
 # Match titles
 def _matchTitle(title):
