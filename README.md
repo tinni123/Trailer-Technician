@@ -29,6 +29,8 @@ git clone https://github.com/jsaddiction/Trailer-Technician.git
 sudo python3 -m pip3 install -r requirements.txt
 ```
 
+5. Copy / rename settings.ini.example to settings.ini and configure your tmdb api key
+
 ## Settings
 Settings are defined in settings.ini located in the root of this application.  If no options are specified then the default options are used.  TMDB api key is not required however, not having one severly limits acuracy and functionality.
 
