@@ -45,23 +45,17 @@ Make a call to this script making use of the following arguments.
 Get trailers for your entire library
 ```
 python3 TrailerTechnician.py -rd "path/to/movielibrary"
-'''
+```
 
 Get trailer for single folder
 ```
 python3 TrailerTechnician.py -d "path/to/movielibrary/movie"
-```
 
-or
-
-```
 python3 TrailerTechnician.py -d "path/to/movielibrary/movie" -t "Movie Title" -y 1999
-```
 
-or
-
-```
 python3 TrailerTechnician.py -d "path/to/movielibrary/movie" -tmdb 1234
+
+python3 TrailerTechnician.py -d "path/to/movielibrary/movie" -imdb tt123456
 ```
 
 ### Library Structure
