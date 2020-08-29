@@ -41,7 +41,7 @@ Make a call to this script making use of the following arguments.
 -tmdb                   # Optional - Tmdbid of movie
 ```
 
-### Example CLI calls
+#### Example CLI calls
 Get trailers for your entire library
 ```
 python3 TrailerTechnician.py -rd "path/to/movielibrary"
