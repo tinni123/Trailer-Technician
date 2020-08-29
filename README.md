@@ -49,13 +49,13 @@ python3 TrailerTechnician.py -rd "path/to/movielibrary"
 
 Get trailer for single folder
 ```
-python3 TrailerTechnician.py -d "path/to/movielibrary/movie"
+python3 TrailerTechnician.py -d "path/to/movielibrary/movie (1999)"
 
-python3 TrailerTechnician.py -d "path/to/movielibrary/movie" -t "Movie Title" -y 1999
+python3 TrailerTechnician.py -d "path/to/movielibrary/movie (1999)" -t "Movie Title" -y 1999
 
-python3 TrailerTechnician.py -d "path/to/movielibrary/movie" -tmdb 1234
+python3 TrailerTechnician.py -d "path/to/movielibrary/movie (1999)" -tmdb 1234
 
-python3 TrailerTechnician.py -d "path/to/movielibrary/movie" -imdb tt123456
+python3 TrailerTechnician.py -d "path/to/movielibrary/movie (1999)" -imdb tt123456
 ```
 
 ### Library Structure
