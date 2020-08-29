@@ -41,7 +41,30 @@ Make a call to this script making use of the following arguments.
 -tmdb                   # Optional - Tmdbid of movie
 ```
 
-#### Library Structure
+### Example CLI calls
+Get trailers for your entire library
+```
+python3 TrailerTechnician.py -rd "path/to/movielibrary"
+'''
+
+Get trailer for single folder
+```
+python3 TrailerTechnician.py -d "path/to/movielibrary/movie"
+```
+
+or
+
+```
+python3 TrailerTechnician.py -d "path/to/movielibrary/movie" -t "Movie Title" -y 1999
+```
+
+or
+
+```
+python3 TrailerTechnician.py -d "path/to/movielibrary/movie" -tmdb 1234
+```
+
+### Library Structure
 This script assumes the following structure.  The exact folder structure is not required but it does increase reliability and accuracy.
 
 ```
