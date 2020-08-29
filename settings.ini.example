@@ -1,0 +1,14 @@
+[logs]
+log_level=debug
+log_to_file=false
+
+[apple]
+resolution=1080
+
+[youtube]
+max_resolution=1080
+lang=en
+min_resolution=720
+
+[tmdb]
+api_key=
