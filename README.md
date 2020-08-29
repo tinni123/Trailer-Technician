@@ -33,12 +33,12 @@ Configure a 'Connection' in Radarr to call this script. The environment variable
 ### From the CLI
 Make a call to this script making use of the following arguments.
 ```
--d directory                                # Required in all cli calls
--r recursive mode                           # If set scanning of directories within directory option is preformed
--y year                                     # Year of movie
--t title                                    # Title of movie
--imdb                                       # Imdbid of movie
--tmdb                                       # Tmdbid of movie
+-d directory            # Required in all cli calls
+-r recursive mode       # If set scanning of directories within directory option is preformed
+-y year                 # Year of movie
+-t title                # Title of movie
+-imdb                   # Imdbid of movie
+-tmdb                   # Tmdbid of movie
 ```
 
 #### Library Structure
