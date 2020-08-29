@@ -23,26 +23,29 @@ def download_youtube(tmdb_videos, filepath):
 
     # Filter tmdb videos based on settings and video types
     links = []
-    for video in tmdb_videos:
-    # Filter only trailer videos
-        if not video['type'].lower() == 'trailer':
-            continue
-        # Filter results based on language that user may have provided
-        if config['youtube']['lang'] and not video['iso_639_1'].lower() == config['youtube']['lang']:
-            continue
-        # Filter results based on resolution that user may have provided
-        if config['youtube']['min_resolution'] and not video['size'] >= int(config['youtube']['min_resolution']):
-            continue
-        # filter only youtube trailers
-        if not video['site'].lower() == 'youtube':
-            continue
-        
-        links.append('{}{}'.format(youtube_url, video['key']))
+    if tmdb_videos:
+        for video in tmdb_videos:
+        # Filter only trailer videos
+            if not video['type'].lower() == 'trailer':
+                continue
+            # Filter results based on language that user may have provided
+            if config['youtube']['lang'] and not video['iso_639_1'].lower() == config['youtube']['lang']:
+                continue
+            # Filter results based on resolution that user may have provided
+            if config['youtube']['min_resolution'] and not video['size'] >= int(config['youtube']['min_resolution']):
+                continue
+            # filter only youtube trailers
+            if not video['site'].lower() == 'youtube':
+                continue
+            
+            links.append('{}{}'.format(youtube_url, video['key']))
 
     # Check if any links to parse
     if len(links) == 0:
-        log.info('No YouTube trailers parsed from TMDB. Skipping YouTube download.')
+        log.info('No YouTube trailers parsed from TMDB.')
         return False
+
+    # Tell the user how many trailers were listed that meet criteria
     log.info('Found {} trailers listed on TMDB.'.format(len(links)))
 
     # Loop through links until one works

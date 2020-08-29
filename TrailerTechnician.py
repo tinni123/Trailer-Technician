@@ -1,118 +1,166 @@
 import os
+import sys
 import shutil
+import subprocess
 from utils.logger import Logger
 from utils.arguments import get_arguments
 from utils.environment import get_environment
-from providers.tmdb import TMDB
+from base.moviefolder import Movie_Folder
 from downloaders.apple import download_apple
 from downloaders.youtube import download_youtube
 
 log = Logger().get_log('TrailerTechnician')
 temp_dir = os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'downloaders'), 'downloads')
 
-def _has_trailer(movie_path):
-    # Check a directory for a file with '-trailer' in its name
-    for item in os.listdir(movie_path):
-        path = os.path.join(movie_path, item)
-        if os.path.isfile(path):
-            if '-trailer' in os.path.basename(path):
-                return True
+def _download_trailer(directory):
+    # directory is and instance of Movie_Folder
 
-def _build_temp_filepath(movie_path):
-    # Ensure temp path exists
+    success = False
+    # Build temp directory and temp trailer file path
     if not os.path.isdir(temp_dir):
-        log.debug('Creating temp directory for downloads.')
         os.mkdir(temp_dir)
-
-    # Build full temp path
-    filename = os.path.splitext(os.path.basename(movie_path))[0] + '.mp4'
-    return os.path.join(temp_dir, filename)
-
-# Move trailer to final directory
-def _move_trailer(temp_path, movie_dir):
-    log.info('Moving trailer to "{}"'.format(movie_dir))
-    try:
-        shutil.move(temp_path, movie_dir)
-    except Exception as e:
-        log.warning('Could not move trailer to "{}" {}'.format(movie_dir, e))
-
-# Clean up downloads folder
-def _clean_dir(temp_path):
-    log.info('Cleaning up downloads directory.')
-    for item in os.listdir(temp_path):
-        path = os.path.join(temp_path, item)
-        os.remove(path)
-
-# Download a single trailer from either apple or youtube
-def _download_one(movie_path, title=None, year=None, imdb=None, tmdb=None):
-    movie_directory = os.path.dirname(movie_path)
-    temp_file_path = _build_temp_filepath(movie_path)
-    tmdb = None
-
-    # Check if a trailer already exists
-    if _has_trailer(movie_directory):
-        log.info('Trailer found in "{}". Skipping download.'.format(movie_directory))
-        return True
-
-    # If no title or year was provided get it from tmdb
-    if not title or year:
-        tmdb = TMDB(tmdb, imdb, year, title)
-
-    # Check Apple for a trailer to download
-    if download_apple(year, title, temp_file_path):
-        _move_trailer(temp_file_path, movie_directory)
-        _clean_dir(temp_dir)
-        return True
-
-    # Get TMDB info if we haven't already
-    if not tmdb:
-        tmdb = TMDB(tmdb, imdb, year, title)
-
-    # Check Youtube 
-    if download_youtube(tmdb.tmdb_videos, temp_file_path):
-        _move_trailer(temp_file_path, movie_directory)
-        _clean_dir(temp_dir)
-        return True
+    temp_trailer_path = os.path.join(temp_dir, directory.trailer_filename)
     
-    # No trailer downloaded
-    return False
+
+    # Check to see if title and year were parsed by directory object
+    if directory.title and directory.year:
+        success = download_apple(directory.year, directory.title, temp_trailer_path)
+
+    # Check youtube if nothing downloaded from apple
+    if not success and directory.tmdb_videos:
+        success = download_youtube(directory.tmdb_videos, temp_trailer_path)
+    else:
+        log.warning('Could not parse data from TMDB. Skipping YouTube download.')
+
+    if success:
+        log.info('Moving trailer {} to "{}"'.format(temp_trailer_path, directory.directory))
+        try:
+            shutil.move(temp_trailer_path, directory.directory)
+        except Exception as e:
+            log.warning('Could not move trailer to "{}" {}'.format(directory.directory, e))
+        
+
+    # Clean up temp directory
+    for item in os.listdir(temp_dir):
+        path = os.path.join(temp_dir, item)
+        try:
+            if os.path.isfile(path) or os.path.islink(path):
+                os.unlink(path)
+            elif os.path.isdir(path):
+                shutil.rmtree(path)
+        except Exception as e:
+            log.warning('Could not clean temp downloads folder "{}" ERROR: {}'.format(temp_dir, e))
 
 def main():
     args = get_arguments()
     env = get_environment()
 
-    # Script called from cli with recursive flag set
-    if args.recursive and args.directory:
-        log.info('Recursive mode enabled. Scanning "{}".'.format(args.directory))
-        # Start Batch mode and collect trailers for each movie directory.
-        # for sub_dir in os.listdir(args['directory']):
-        #     path = os.path.join(args['directory'], sub_dir)
-        #     if os.path.isdir(path):
-        #         for item in os.listdir(path):
-        #             if '-trailer.' in item:
-        #                 log.debug('{}'.format(item))
+    # Called from cli, directory is required in this mode
+    if args.directory:
 
-    # Called from cli with year and title set
-    elif args.year and args.title and args.directory:
-        # Start processing single directory from radarr env variables
-        log.info('Single directory mode initiated with title "{}" and year "{}"'.format(args.title, args.year))
+        # Ensure path exists before continuing
+        if not os.path.isdir(args.directory):
+            log.warning('Directory not found. Exiting. "{}"'.format(args.directory))
+            sys.exit(1)
 
-    # Called from cli with tmdbid set
-    elif args.tmdbid and args.directory:
-        log.info('Single directory mode initiated with tmdb "{}"'.format(args.tmdbid))
+        # Script called from cli with recursive flag set, ignore all other flags if this is set
+        if args.recursive:
+            log.info('Recursive mode enabled. Scanning "{}".'.format(args.directory))
+            # Loop through each subdirectory
+            for sub_dir in os.listdir(args.directory):
+                path = os.path.join(args.directory, sub_dir)
+                if os.path.isdir(path):
+                    directory = Movie_Folder(path)
+                    if not directory.has_trailer and directory.has_movie:
+                        log.info('No Local trailer found for "{}" in {}'.format(directory.title, directory.directory))
+                        _download_trailer(directory)
+                        log.info('------------------------------------------------------')
 
-    # Called from cli with imdbid set
-    elif args.imdbid and args.directory:
-        log.info('Single directory mode initiate with imdb "{}"'.format(args.imdbid))
+        # Script called from cli without recursive flag set with directory only
+        elif not args.year and not args.title:
+            log.info('Single Directory mode enabled. Scanning "{}"'.format(args.directory))
+            directory = Movie_Folder(args.directory)
+            if directory.has_movie:
+                if not directory.has_trailer:
+                    log.info('No Local trailer found for "{}" in {}'.format(directory.title, directory.directory))
+                    _download_trailer(directory)
+                    log.info('------------------------------------------------------')
+                else:
+                    log.info('Trailer already downloaded for "{} ({})"'.format(directory.title, directory.year))
+            else:
+                log.info('No movie file found in "{}"'.format(directory.directory))
+
+        # Called from cli with year and title set
+        elif args.title and args.year:
+            # Start processing single directory from radarr env variables
+            log.info('Single directory mode initiated for "{} ({})"'.format(args.title, args.year))
+            directory = Movie_Folder(args.directory)
+            directory.set_title_year(args.title, args.year)
+            if directory.has_movie:
+                if not directory.has_trailer:
+                    log.info('No Local trailer found for "{}" in {}'.format(directory.title, directory.directory))
+                    _download_trailer(directory)
+                    log.info('------------------------------------------------------')
+                else:
+                    log.info('Trailer already downloaded for "{} ({})"'.format(directory.title, directory.year))
+            else:
+                log.info('No movie file found in "{}"'.format(directory.directory))
+
+        # Called from cli with imdbid set
+        elif args.imdbid:
+            log.info('Single directory mode initiated for imdb "{}"'.format(args.imdbid))
+            directory = Movie_Folder(args.directory)
+            directory.imdb_id = args.imdbid
+            if directory.has_movie:
+                if not directory.has_trailer:
+                    log.info('No Local trailer found for "{}" in {}'.format(directory.title, directory.year))
+                    _download_trailer(directory)
+                    log.info('------------------------------------------------------')
+                else:
+                    log.info('Trailer already downloaded for "{} ({})"'.format(directory.title, directory.year))
+            else:
+                log.info('No movie file found in "{}"'.format(directory.directory))
+
+        # Called from cli with tmdbid set
+        elif args.tmdbid:
+            log.info('Single directory mode initiated for tmdb "{}"'.format(args.tmdbid))
+            directory = Movie_Folder(args.directory)
+            directory.tmdb_id = args.tmdbid
+            if directory.has_movie:
+                if not directory.has_trailer:
+                    log.info('No Local trailer found for "{}" in {}'.format(directory.title, directory.year))
+                    _download_trailer(directory)
+                    log.info('------------------------------------------------------')
+                else:
+                    log.info('Trailer already downloaded for "{} ({})"'.format(directory.title, directory.year))
+            else:
+                log.info('No movie file found in "{}"'.format(directory.directory))
+
+        # Not enough data was provided in arguments to process
+        else:
+            log.warning('Not enough info was provided. Exiting.')
+            sys.exit(1)
 
     # Called from Radarr with environment variables set
     elif env['valid']:
         log.info('Single directory mode initiated from Radarr')
 
-        # Download trailer for provided movie into provided path
-        if _download_one(env['movie_path'], env['title'], env['year'], env['imdbid'], env['tmdbid']):
-            log.info('Sucess! Trailer downloaded for "{}"'.format(env['title']))
-    
+        # Ensure directory exists befor continuing
+        if not os.path.isdir(env['movie_dir']):
+            log.warning('Directory not found. Exiting. "{}"'.format(env['movie_dir']))
+            sys.exit(1)
+
+        directory = Movie_Folder(env['movie_dir'])
+        if directory.has_movie:
+            if not directory.has_trailer:
+                log.info('No Local trailer found for "{}" in {}'.format(directory.title, directory.directory))
+                _download_trailer(directory)
+                log.info('------------------------------------------------------')
+            else:
+                log.info('Trailer already downloaded for "{} ({})"'.format(directory.title, directory.year))
+        else:
+            log.info('No movie file found in "{}"'.format(directory.directory))
+
     # Called without enough information to find appropriate trailer
     else:
         log.warning('Script called without enough valid information. Exiting')
@@ -120,10 +168,9 @@ def main():
 
 if __name__ == '__main__':
     os.environ['radarr_eventtype'] = 'Download'
-    # os.environ['radarr_moviefile_path'] = '/var/nfs/movies/8MM (1999)/8MM (tt0314273).mkv'
-    os.environ['radarr_moviefile_path'] = 'm:/8MM (1999)/8MM (tt0134273).mkv'
+    os.environ['radarr_movie_path'] = 'm:/8MM (1999)'
     os.environ['radarr_movie_title'] = '8MM'
-    # os.environ['radarr_movie_year'] = '1999'
+    os.environ['radarr_movie_year'] = '1999'
     os.environ['radarr_movie_imdbid'] = 'tt0134273'
-    # os.environ['radarr_movie_tmdbid'] = '8224'
+    os.environ['radarr_movie_tmdbid'] = '8224'
     main()

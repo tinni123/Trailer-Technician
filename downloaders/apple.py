@@ -118,13 +118,12 @@ def _searchApple(query):
 
 def download_apple(year, title, filepath):
 # Search Apple
-        log.info('Searching Apple for trailer.')
         search = _searchApple(title)
 
         # Check search results and see if we need to continue.
         if len(search['results']) == 0:
-            log.info('No trailers found on Apple. Skipping download.')
-            return
+            log.info('No trailers found on Apple.')
+            return False
 
         log.info('Found {} Apple trailers for "{}"'.format(len(search['results']), title))
 
@@ -138,7 +137,5 @@ def download_apple(year, title, filepath):
                     for link in links:
                         if _downloadFile(link['url'], filepath):
                             return True
-                else:
-                    log.info('Release Date or title mismatch. Skipping search result')
-            else:
-                log.info('Release Date or title not found in search result.')
+        # return false if no trailer was downloaded
+        return False

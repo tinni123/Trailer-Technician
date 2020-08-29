@@ -7,86 +7,81 @@ from utils.config import get_config
 from utils.logger import Logger
 
 config = get_config()
+log = Logger().get_log(__name__)
 
-class TMDB(object):
-    YOUTUBE_URL = 'https://www.youtube.com/watch?v='
+# Find by tmdb id
+def _find_by_tmdbid(tmdb_id):
+    # Returns tmdb.Movies object
+    try:
+        movie = tmdb.Movies(tmdb_id)
+    except HTTPError as e:
+        _handle_error(e)
+        return False
 
-    def __init__(self, tmdb_id=None, imdb_id=None, year=None, title=None):
-        tmdb.API_KEY = config['tmdb']['api_key']
-        self.log = Logger().get_log('TMDB_API')
-        self.tmdb_id = tmdb_id
-        self.imdb_id = imdb_id
-        self.title = title
-        self.year = year
-        self.tmdb_videos = None
-        self.get_movie_details()
+    try:
+        data = movie.info(append_to_response='videos')
+    except HTTPError as e:
+        _handle_error(e)
+        return False
 
-    def _find_by_imdbid(self, imdb_id):
-        # Find movie and return TMDBid
-        try:
-            response = tmdb.Find(imdb_id).info(external_source='imdb_id')
-        except HTTPError as e:
-            self._tmdb_error(e)
-            return None
-        self.tmdb_id = response['movie_results'][0]['id']
-        self.title = response['movie_results'][0]['title']
-        self.year = self._release_date_to_year(response['movie_results'][0]['release_date'])
+    return data
 
-    def _find_by_title_year(self, title, year):
-        try:
-            response = tmdb.Search().movie(query=self.title, year=self.year)
-        except HTTPError as e:
-            self._tmdb_error(e)
-            return None
+# Find by imdbid
+def _find_by_imdbid(imdb_id):
+    # Returns tmdb.Movies object
+    try:
+        tmdb_id = tmdb.Find(imdb_id).info(external_source='imdb_id')['movie_results'][0]['id']
+        movie = _find_by_tmdbid(tmdb_id)
+    except HTTPError as e:
+        _handle_error(e)
+        return None
 
-        # Parse results. It may not be the correct search result
-        for result in response['results']:
-            if self._release_date_to_year(result['release_date']) == self.year and result['title'].lower() == self.title.lower():
-                self.tmdb_id = result['id']
-                self.title = result['title']
-                self.year = self._release_date_to_year(result['release_date'])
+    return movie
 
-    def get_movie_details(self):
-        # Get a tmdb_id first
-        if not self.tmdb_id:
+# Find by title and year
+def _find_by_title_year(title, year):
+    # Returns tmdb.Movies object
+    try:
+        response = tmdb.Search().movie(query=title, year=year)
+    except HTTPError as e:
+        _handle_error(e)
+        return False
 
-            # If no tmdbid was provided then try searching by imdbid
-            if self.imdb_id:
-                self._find_by_imdbid(self.imdb_id)
+     # Parse results. It may not be the correct search result
+    for result in response['results']:
+        if _release_date_to_year(result['release_date']) == year and result['title'].lower() == title.lower():
+            return _find_by_tmdbid(result['id'])
 
-            # If no imdbid was provided then try searching by title and year
-            elif self.title and self.year:
-                self._find_by_title_year(self.title, self.year)
+    return False
 
-            # No tmdbid, imdbid, or title, year combo was provided. Can not continue.
-            else:
-                self.log.warning('Could not find movie details. Not enough info provided.')
-                return
+# Handle http errors
+def _handle_error(error):
+    status_code = error.response.status_code
+    if status_code == 401:
+        log.error('TMDB API key was not accepted.')
+    elif status_code == 404:
+        log.warning('TMDB could not locate the requested resource')
+    return
 
-        # Get remaining movie details
-        try:
-            movie = tmdb.Movies(self.tmdb_id)
-        except HTTPError as e:
-            self._tmdb_error(e)
-            return
+# Convert '2010-04-14' to '2010'
+def _release_date_to_year(release_date):
+    return str(datetime.strptime(release_date, '%Y-%m-%d').year)
 
-        self.tmdb_videos = movie.videos()['results']
+# Main function to collect data about a movie
+def get_movie_info(tmdb_id=None, imdb_id=None, year=None, title=None):
+    tmdb.API_KEY = config['tmdb']['api_key']
 
-        # Only get extra data if none was provided.
-        if not self.imdb_id or not self.tmdb_id or not self.title or not self.year:
-            response = movie.info()
-            self.imdb_id = response['imdb_id']
-            self.tmdb_id = response['id']
-            self.title = response['title']
-            self.year = self._release_date_to_year(response['release_date'])
+    log.info('Getting data from TMDB.')
 
-    def _release_date_to_year(self, release_date):
-        return str(datetime.strptime(release_date, '%Y-%m-%d').year)
+    # select how to search based on input data
+    if tmdb_id:
+        movie = _find_by_tmdbid(tmdb_id)
+    elif imdb_id:
+        movie = _find_by_imdbid(imdb_id)
+    elif title and year:
+        movie = _find_by_title_year(title, year)
+    else:
+        log.warning('Not enough info provided to find movie on TMDB')
+        return False
 
-    def _tmdb_error(self, error):
-        status_code = error.response.status_code
-        if status_code == 401:
-            self.log.error('TMDB API key was not accepted. Could not get details for "{} ({})"'.format(self.title, self.year))
-        elif status_code == 404:
-            self.log.warning('TMDB could not locate the requested resource "{} ({})"'.format(self.title, self.year))
-        return
+    return movie
