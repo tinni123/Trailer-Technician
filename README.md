@@ -17,7 +17,14 @@ A somewhat simple scripts to download movie trailers for your local library.  Th
 ## Installation
 1. Install [FFmpeg](https://github.com/FFmpeg/FFmpeg)
 
-2. Install python requirements
+2. Install [Git](https://git-scm.com/downloads)
+
+3. Install this script
+```
+git clone https://github.com/jsaddiction/Trailer-Technician.git
+```
+
+4. Install python requirements
 ```
 sudo python3 -m pip3 install -r requirements.txt
 ```
