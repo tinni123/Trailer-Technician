@@ -160,7 +160,7 @@ def main():
             log.warning('Directory not found. Exiting. "{}"'.format(env['movie_dir']))
             sys.exit(1)
 
-        directory = Movie_Folder(env['movie_dir'])
+        directory = Movie_Folder(env['movie_dir'], title=env['title'], year=env['year'], tmdb=env['tmdbid'], imdb=env['imdbid'])
         if directory.has_movie:
             if not directory.has_trailer:
                 log.info('No Local trailer found for "{}" in {}'.format(directory.title, directory.directory))
@@ -168,8 +168,10 @@ def main():
                 log.info('------------------------------------------------------')
             else:
                 log.info('Trailer already downloaded for "{} ({})"'.format(directory.title, directory.year))
+                log.info('------------------------------------------------------')
         else:
             log.info('No movie file found in "{}"'.format(directory.directory))
+            log.info('------------------------------------------------------')
 
     # Called without enough information to find appropriate trailer
     else:

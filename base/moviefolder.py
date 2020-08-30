@@ -12,14 +12,14 @@ class Movie_Folder(object):
     min_movie_duration_sec = 600
     video_ext = ['.mkv', '.iso', '.wmv', '.avi', '.mp4', '.m4v', '.img', '.divx', '.mov', '.flv', '.m2ts']
 
-    def __init__(self, directory):
+    def __init__(self, directory, title=None, year=None, tmdb=None, imdb=None):
         self.directory = directory
         self.movie_path = None
         self._trailer_path = None
-        self._title = None
-        self._year = None
-        self._imdb_id = None
-        self._tmdb_id = None
+        self._title = title
+        self._year = year
+        self._imdb_id = imdb
+        self._tmdb_id = tmdb
         self._tmdb_videos = None
         self._tmdb_queried = False
         self._parse_directory()
@@ -218,7 +218,9 @@ class Movie_Folder(object):
             if os.path.isfile(path):
                 if os.path.splitext(path)[-1] in self.video_ext:
                     self._parse_videos(path)
-                elif os.path.splitext(path)[-1] == '.nfo':
+                
+                # Don't parse nfo if we alread have data supplied at instantiation time.
+                elif os.path.splitext(path)[-1] == '.nfo' and not self._title or not self._year or not self._tmdb_id or not self._imdb_id:
                     self._parse_nfo(path)
             elif os.path.isdir(path):
                 if 'bdmv' in path.lower():
