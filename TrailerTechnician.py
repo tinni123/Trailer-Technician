@@ -155,7 +155,7 @@ def main():
     elif env['valid']:
         log.info('Single directory mode initiated from Radarr')
 
-        # Ensure directory exists befor continuing
+        # Ensure directory exists before continuing
         if not os.path.isdir(env['movie_dir']):
             log.warning('Directory not found. Exiting. "{}"'.format(env['movie_dir']))
             sys.exit(1)

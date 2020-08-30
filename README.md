@@ -91,7 +91,7 @@ This script if only given a directory via the CLI will process in the following 
 5. If no trailer file was found in the ffprobe step the data parsed from the nfo is passed to the download function.
 6. The download function will first search Apple trailers for the appropriate trailer.
 7. If no trailer was found then information parsed from TMDB is passed to youtube_dl.
-8. Both download functions create temp files in the download directorys directory of this script.
+8. Both download functions create temp files in the downloads directory of this script.
 9. Once the downloading is complete the new trailer is moved to the destination directory and the downloads directory is cleaned up.
 
 When called from the CLI in recursive mode the above process is repeated over each subdirectory of the path given.
