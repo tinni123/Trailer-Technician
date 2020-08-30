@@ -2,6 +2,7 @@
 __pycache__/
 /downloads
 settings.ini
+test.py
 Trailer-Technician.log
 *.py[cod]
 *$py.class

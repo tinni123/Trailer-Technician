@@ -187,8 +187,10 @@ class Movie_Folder(object):
             self.log.warning('Failed to determin video duration. Error: {}'.format(e))
             return False
         if duration >= self.min_movie_duration_sec:
+            self.log.debug('Found movie file: "{}"'.format(os.path.basename(path)))
             self.movie_path = path
         else:
+            self.log.debug('Found trailer file: "{}"'.format(os.path.basename(path)))
             self._trailer_path = path
 
     def _parse_nfo(self, path):
@@ -204,7 +206,13 @@ class Movie_Folder(object):
             self.movie_path = os.path.join(path, 'index.bdmv')
             self._trailer_path = os.path.join(path, 'index-trailer.mp4')
 
+    def _parse_video_ts(self, path):
+        if 'VIDEO_TS' in os.listdir(path):
+            self.movie_path = os.path.join(path, 'VIDEO_TS.ifo')
+            self._trailer_path = os.path.join(path, 'VIDEO_TS-trailer.mp4')
+
     def _parse_directory(self):
+        self.log.debug('Parsing "{}"'.format(self.directory))
         for item in os.listdir(self.directory):
             path = os.path.join(self.directory, item)
             if os.path.isfile(path):
@@ -212,6 +220,10 @@ class Movie_Folder(object):
                     self._parse_videos(path)
                 elif os.path.splitext(path)[-1] == '.nfo':
                     self._parse_nfo(path)
-            elif os.path.isdir(path) and 'bdmv' in path.lower():
-                self.log.debug('Encounted a BDMV format')
-                self._parse_bdmv(path)
+            elif os.path.isdir(path):
+                if 'bdmv' in path.lower():
+                    self.log.debug('Encounted a BluRay folder structure "{}"'.format(path))
+                    self._parse_bdmv(path)
+                elif 'video_ts' in path.lower():
+                    self.log.debug('Encounterd a DVD folder structure "{}"'.format(path))
+                    self._parse_video_ts(path)

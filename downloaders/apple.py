@@ -32,6 +32,7 @@ def _unescape(query):
 
 # Load json from url
 def _loadJson(url):
+    log.debug('Searching Apple url="{}"'.format(url))
     response = urlopen(url)
     str_response = response.read().decode('utf-8')
     return json.loads(str_response)
@@ -122,10 +123,10 @@ def download_apple(year, title, filepath):
 
         # Check search results and see if we need to continue.
         if len(search['results']) == 0:
-            log.info('No trailers found on Apple.')
+            log.warning('No trailers found on Apple.')
             return False
 
-        log.info('Found {} Apple trailers for "{}"'.format(len(search['results']), title))
+        log.debug('Found {} Apple trailers for "{}"'.format(len(search['results']), title))
 
         # Parse search results
         for result in search['results']:
@@ -137,5 +138,7 @@ def download_apple(year, title, filepath):
                     for link in links:
                         if _downloadFile(link['url'], filepath):
                             return True
+                else:
+                    log.debug('Search result of "{} ({})" != "{} ({})"'.format(_matchTitle(_unescape(result['title'])), result['releasedate'].lower(), _matchTitle(title), year.lower()))
         # return false if no trailer was downloaded
         return False

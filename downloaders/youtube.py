@@ -42,7 +42,7 @@ def download_youtube(tmdb_videos, filepath):
 
     # Check if any links to parse
     if len(links) == 0:
-        log.info('No YouTube trailers parsed from TMDB.')
+        log.warning('No YouTube trailers parsed from TMDB.')
         return False
 
     # Tell the user how many trailers were listed that meet criteria
@@ -53,7 +53,7 @@ def download_youtube(tmdb_videos, filepath):
         try:
             # Attemp to download the video
             with youtube_dl.YoutubeDL(options) as youtube:
-                log.info('Attempting to download video at "{}". Please Wait...'.format(link))
+                log.debug('Attempting to download video at "{}". Please Wait...'.format(link))
                 if youtube.extract_info(link, download=True):
                     log.info('Download complete!')
                     return True

@@ -34,7 +34,7 @@ def _find_by_imdbid(imdb_id):
         movie = _find_by_tmdbid(tmdb_id)
     except HTTPError as e:
         _handle_error(e)
-        return None
+        return False
 
     return movie
 
@@ -60,7 +60,7 @@ def _handle_error(error):
     if status_code == 401:
         log.error('TMDB API key was not accepted.')
     elif status_code == 404:
-        log.warning('TMDB could not locate the requested resource')
+        log.debug('TMDB reported "Not Found"')
     return
 
 # Convert '2010-04-14' to '2010'
@@ -71,16 +71,22 @@ def _release_date_to_year(release_date):
 def get_movie_info(tmdb_id=None, imdb_id=None, year=None, title=None):
     tmdb.API_KEY = config['tmdb']['api_key']
 
-    log.info('Getting data from TMDB.')
+    log.debug('Getting data from TMDB using provided data: title="{}", year="{}", imdb_id="{}", tmdb_id="{}"'.format(title, year, imdb_id, tmdb_id))
 
-    # select how to search based on input data
+    # Try several methods of determining the appropriate movie based on input data
     if tmdb_id:
+        log.debug('Searching by tmdb_id="{}"'.format(tmdb_id))
         movie = _find_by_tmdbid(tmdb_id)
-    elif imdb_id:
+    
+    if not movie and imdb_id:
+        log.debug('Searching by imdb_id="{}"'.format(imdb_id))
         movie = _find_by_imdbid(imdb_id)
-    elif title and year:
+
+    if not movie and title and year:
+        log.debug('Searching by title="{}", year="{}"'.format(title, year))
         movie = _find_by_title_year(title, year)
-    else:
+
+    if not movie:
         log.warning('Not enough info provided to find movie on TMDB')
         return False
 

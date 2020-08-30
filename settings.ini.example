@@ -1,5 +1,5 @@
 [logs]
-log_level=debug
+log_level=info
 log_to_file=false
 
 [apple]

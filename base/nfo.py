@@ -76,16 +76,16 @@ class NFO(object):
 
     def _parse(self):
         # Parse the NFO
-        # self.log.info('Scanning {} for relevant data.'.format(self._path))
+        self.log.debug('Parsing "{}"'.format(self._path))
         try:
             nfo = et.parse(self._path)
             root  = nfo.getroot()
         except IOError:
-            self.log.error('Could not open file "{}"'.format(self._path))
+            self.log.warning('Could not open file "{}"'.format(self._path))
             self._valid = False
             return
         except et.ParseError:
-            self.log.error('Could not parse file "{}"'.format(self._path))
+            self.log.warning('Could not parse file "{}"'.format(self._path))
             self._valid = False
             return
 
@@ -96,6 +96,7 @@ class NFO(object):
         self._premiered = root.findtext('premiered')
         self._uniqueids = self._parse_uniqueids(root.findall('uniqueid'))
         self.valid = True
+        self.log.debug('NFO Parsed: title="{}", year="{}", imdb_id="{}", tmdb_id="{}"'.format(self.title, self.year, self.imdb, self.tmdb))
 
     def _parse_uniqueids(self, uniqueid_list):
         uniqueids = []

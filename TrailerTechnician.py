@@ -18,6 +18,7 @@ def _download_trailer(directory):
     success = False
     # Build temp directory and temp trailer file path
     if not os.path.isdir(temp_dir):
+        log.info('Creating temp directory. "{}"'.format(temp_dir))
         os.mkdir(temp_dir)
     temp_trailer_path = os.path.join(temp_dir, directory.trailer_filename)
     
@@ -60,7 +61,7 @@ def main():
 
         # Ensure path exists before continuing
         if not os.path.isdir(args.directory):
-            log.warning('Directory not found. Exiting. "{}"'.format(args.directory))
+            log.critical('Directory not found. Exiting. "{}"'.format(args.directory))
             sys.exit(1)
 
         # Script called from cli with recursive flag set, ignore all other flags if this is set
@@ -71,10 +72,15 @@ def main():
                 path = os.path.join(args.directory, sub_dir)
                 if os.path.isdir(path):
                     directory = Movie_Folder(path)
-                    if not directory.has_trailer and directory.has_movie:
-                        log.info('No Local trailer found for "{}" in {}'.format(directory.title, directory.directory))
-                        _download_trailer(directory)
-                        log.info('------------------------------------------------------')
+                    if directory.has_movie:
+                        if not directory.has_trailer:
+                            log.info('No Local trailer found for "{}"'.format(directory.title))
+                            _download_trailer(directory)
+                        else:
+                            log.info('Trailer already exists. "{}"'.format(directory.trailer_filename))
+                    else:
+                        log.warning('No movie file found in "{}"'.format(directory.directory))
+                    log.info('------------------------------------------------------')
 
         # Script called from cli without recursive flag set with directory only
         elif not args.year and not args.title:
@@ -82,13 +88,15 @@ def main():
             directory = Movie_Folder(args.directory)
             if directory.has_movie:
                 if not directory.has_trailer:
-                    log.info('No Local trailer found for "{}" in {}'.format(directory.title, directory.directory))
+                    log.info('No Local trailer found for "{}"'.format(directory.title))
                     _download_trailer(directory)
                     log.info('------------------------------------------------------')
                 else:
                     log.info('Trailer already downloaded for "{} ({})"'.format(directory.title, directory.year))
+                    log.info('------------------------------------------------------')
             else:
                 log.info('No movie file found in "{}"'.format(directory.directory))
+                log.info('------------------------------------------------------')
 
         # Called from cli with year and title set
         elif args.title and args.year:
@@ -118,8 +126,10 @@ def main():
                     log.info('------------------------------------------------------')
                 else:
                     log.info('Trailer already downloaded for "{} ({})"'.format(directory.title, directory.year))
+                    log.info('------------------------------------------------------')
             else:
                 log.info('No movie file found in "{}"'.format(directory.directory))
+                log.info('------------------------------------------------------')
 
         # Called from cli with tmdbid set
         elif args.tmdbid:
