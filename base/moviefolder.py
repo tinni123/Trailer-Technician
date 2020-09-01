@@ -219,8 +219,9 @@ class Movie_Folder(object):
                     self._parse_videos(path)
                 
                 # Don't parse nfo if we already have data supplied at instantiation time.
-                elif os.path.splitext(path)[1] == '.nfo' and not self._title or not self._year or not self._tmdb_id or not self._imdb_id:
-                    self._parse_nfo(path)
+                elif os.path.splitext(path)[1] == '.nfo':
+                    if not self._title or not self._year or not self._tmdb_id or not self._imdb_id:
+                        self._parse_nfo(path)
             elif os.path.isdir(path):
                 if 'bdmv' in path.lower():
                     self.log.debug('Encountered a BluRay folder structure "{}"'.format(path))
