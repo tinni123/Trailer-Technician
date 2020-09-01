@@ -215,11 +215,11 @@ class Movie_Folder(object):
         for item in os.listdir(self.directory):
             path = os.path.join(self.directory, item)
             if os.path.isfile(path):
-                if os.path.splitext(path)[-1] in self.video_ext:
+                if os.path.splitext(path)[1] in self.video_ext:
                     self._parse_videos(path)
                 
                 # Don't parse nfo if we already have data supplied at instantiation time.
-                elif os.path.splitext(path)[-1] == '.nfo' and not self._title or not self._year or not self._tmdb_id or not self._imdb_id:
+                elif os.path.splitext(path)[1] == '.nfo' and not self._title or not self._year or not self._tmdb_id or not self._imdb_id:
                     self._parse_nfo(path)
             elif os.path.isdir(path):
                 if 'bdmv' in path.lower():
