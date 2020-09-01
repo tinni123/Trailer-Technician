@@ -33,6 +33,30 @@ sudo python3 -m pip3 install -r requirements.txt
 
 5. Copy / rename settings.ini.example to settings.ini and configure your tmdb api key
 
+### Installation using docker containers
+If you are using [linuxserver/radarr](https://hub.docker.com/r/linuxserver/radarr) image for your docker container then this installation process is for you.
+
+1. '/config' should be mapped to some directory on your host machine for data retention. At the root of this directory create a folder called 'custom-cont-init.d'
+
+2. In this directory create a bash script called 'InstallTrailerTechnician.sh'  From the perspective of the container it should appear as '/config/custom-cont-init.d/InstallTrailerTechnician.sh'. Insert the following code into that bash script:
+```
+#!/bin/bash
+
+echo "**** installing TrailerTechnician ****"
+
+apt-get update -y
+apt-get install python3 -y
+apt-get install python3-pip -y
+apt-get install ffmpeg -y
+apt-get install git -y
+git clone https://github.com/jsaddiction/Trailer-Technician.git /config/scripts/TrailerTechnician
+pip3 install -r /config/scripts/TrailerTechnician/requirements.txt
+
+echo "****           all done                  ****"
+```
+
+3. This script is run during container creation so you may have to 'STOP' 'RM' your radarr container then reconstruct it.
+
 ## Settings
 Settings are defined in settings.ini located in the root of this application.  If no options are specified then the default options are used.  TMDB api key is required for YouTube downloading and not having one will present some errors.
 
