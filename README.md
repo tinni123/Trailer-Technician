@@ -31,7 +31,7 @@ While still in the command line navigate to the new directory /TrailerTechnician
 sudo python3 -m pip3 install -r requirements.txt
 ```
 
-5. Copy / rename settings.ini.example to settings.ini and configure your tmdb api key
+5. Once you have it installed don't forget to update your settings as defined below.
 
 ### Installation using docker containers
 If you are using [linuxserver/radarr](https://hub.docker.com/r/linuxserver/radarr) image for your docker container then this installation process is for you.
@@ -57,16 +57,32 @@ echo "****           all done                  ****"
 
 3. This script is run during container creation so you may have to 'STOP' 'RM' your radarr container then reconstruct it.
 
+4. Once you have it installed don't forget to configure your settings as defined below.
+
 ## Settings
-Settings are defined in settings.ini located in the root of this application.  If no options are specified then the default options are used.  TMDB api key is required for YouTube downloading and not having one will present some errors.
+Settings are defined in settings.ini located in the root of this application.  TMDB api key is required for YouTube downloading and not having one will present some errors.
+
+1. Get TMDB api key here [TMDB Signup](https://www.themoviedb.org/signup) then login. Find your setting>api page.  Find 'API Key (v3 auth)' and copy/paste it into the settings.ini file.
+
+2. Changing the other fields are optional
 
 ## Usage
+
+### Test it out
+In your terminal run a command like this one
+```
+python3 /path/to/script/TrailerTechnician.py -d "/path/to/single_movie/directory (2010)"
+```
+The script will make its best attempt to find and download the trailer for that directory. If all goes well use the following script to download all the trailers.  This takes a while so sit back and watch the logs!!
+```
+python3 /path/to/script/TrailerTechnician.py -rd "/path/to/movie_library"
+```
 
 ### To download single trailer as part of RADARR post processing
 Configure a 'Connection' in Radarr to call this script. The environment variables will be utilized to determine the appropriate trailer
 
 ### From the CLI
-Make a call to this script making use of the following arguments.
+Make a call to this script making use of the following arguments.  Including imdb, tmdb, or year and title should only be used for problematic trailers.
 ```
 -d directory            # Required - Path to movie directory
 -r recursive mode       # Optional - Scan Subdirectories
@@ -79,18 +95,18 @@ Make a call to this script making use of the following arguments.
 #### Example CLI calls
 Get trailers for your entire library
 ```
-python3 TrailerTechnician.py -rd "path/to/movielibrary"
+python3 TrailerTechnician.py -rd "path/to/movie_library"
 ```
 
 Get trailer for single folder
 ```
-python3 TrailerTechnician.py -d "path/to/movielibrary/movie (1999)"
+python3 TrailerTechnician.py -d "path/to/movie_library/movie (1999)"
 
-python3 TrailerTechnician.py -d "path/to/movielibrary/movie (1999)" -t "Movie Title" -y 1999
+python3 TrailerTechnician.py -d "path/to/movie_library/movie (1999)" -t "Movie Title" -y 1999
 
-python3 TrailerTechnician.py -d "path/to/movielibrary/movie (1999)" -tmdb 1234
+python3 TrailerTechnician.py -d "path/to/movie_library/movie (1999)" -tmdb 1234
 
-python3 TrailerTechnician.py -d "path/to/movielibrary/movie (1999)" -imdb tt123456
+python3 TrailerTechnician.py -d "path/to/movie_library/movie (1999)" -imdb tt123456
 ```
 
 ### Library Structure
