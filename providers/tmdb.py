@@ -70,6 +70,7 @@ def _release_date_to_year(release_date):
 # Main function to collect data about a movie
 def get_movie_info(tmdb_id=None, imdb_id=None, year=None, title=None):
     tmdb.API_KEY = config['tmdb']['api_key']
+    movie = None
 
     log.debug('Getting data from TMDB using provided data: title="{}", year="{}", imdb_id="{}", tmdb_id="{}"'.format(title, year, imdb_id, tmdb_id))
 
