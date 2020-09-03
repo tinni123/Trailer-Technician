@@ -40,7 +40,7 @@ class NFO(object):
                 return item['value']
 
         # Revert to id tag
-        if self._id.startswith('tt'):
+        if self._id.startswith('tt') and len(self._id) == 9 and self._id.replace('tt', '').isdigit():
             return self._id
         
         # if nothing was found return none
@@ -50,11 +50,11 @@ class NFO(object):
     def tmdb(self):
         # First check in uniquid list
         for item in self._uniqueids:
-            if item['type'].lower() == 'tmdb':
+            if item['type'].lower() == 'tmdb' and item['value'].isdigit():
                 return item['value']
         
         # Revert to id tag
-        if not self._id.startswith('tt'):
+        if not self._id.startswith('tt') and self._id.isdigit():
             return self._id
 
         # If nothing was found return none
@@ -64,7 +64,8 @@ class NFO(object):
     def year(self):
         # Get the year first
         if self._year:
-            return self._year
+            if len(self._year) == 4 and self._year.isdigit():
+                return self._year
 
         # Second try the premiered date
         elif self._premiered:
