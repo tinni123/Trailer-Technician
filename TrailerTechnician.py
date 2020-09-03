@@ -79,12 +79,12 @@ def main():
                     directory = Movie_Folder(path)
                     if directory.has_movie:
                         if not directory.has_trailer:
-                            log.info('No Local trailer found for "{}"'.format(directory.title))
+                            log.info('No Local trailer found in "{}"'.format(directory.directory))
                             _download_trailer(directory)
                         else:
                             log.info('Trailer already exists. "{}"'.format(directory.trailer_filename))
                     else:
-                        log.warning('No movie file found in "{}"'.format(directory.directory))
+                        log.warning('Assuming this is not a movie folder. No movie file found in "{}"'.format(directory.directory))
                     log.info('------------------------------------------------------')
 
         # Script called from cli without recursive flag set with directory only
@@ -97,10 +97,10 @@ def main():
                     _download_trailer(directory)
                     log.info('------------------------------------------------------')
                 else:
-                    log.info('Trailer already downloaded for "{}"'.format(directory.directory))
+                    log.info('Trailer already exists. "{}"'.format(directory.trailer_filename))
                     log.info('------------------------------------------------------')
             else:
-                log.info('No movie file found in "{}"'.format(directory.directory))
+                log.info('Assuming this is not a movie folder. No movie file found in "{}"'.format(directory.directory))
                 log.info('------------------------------------------------------')
 
         # Called from cli with year and title set
@@ -111,13 +111,13 @@ def main():
             directory.set_title_year(args.title, args.year)
             if directory.has_movie:
                 if not directory.has_trailer:
-                    log.info('No Local trailer found for "{}" in {}'.format(directory.title, directory.directory))
+                    log.info('No Local trailer found in {}'.format(directory.directory))
                     _download_trailer(directory)
                     log.info('------------------------------------------------------')
                 else:
-                    log.info('Trailer already downloaded for "{} ({})"'.format(directory.title, directory.year))
+                    log.info('Trailer already exists. "{}"'.format(directory.trailer_filename))
             else:
-                log.info('No movie file found in "{}"'.format(directory.directory))
+                log.info('Assuming this is not a movie folder. No movie file found in "{}"'.format(directory.directory))
 
         # Called from cli with imdbid set
         elif args.imdbid:
@@ -126,14 +126,14 @@ def main():
             directory.imdb_id = args.imdbid
             if directory.has_movie:
                 if not directory.has_trailer:
-                    log.info('No Local trailer found for "{}" in {}'.format(directory.title, directory.year))
+                    log.info('No Local trailer found in "{}"'.format(directory.directory))
                     _download_trailer(directory)
                     log.info('------------------------------------------------------')
                 else:
-                    log.info('Trailer already downloaded for "{} ({})"'.format(directory.title, directory.year))
+                    log.info('Trailer already exists. "{}"'.format(directory.trailer_filename))
                     log.info('------------------------------------------------------')
             else:
-                log.info('No movie file found in "{}"'.format(directory.directory))
+                log.info('Assuming this is not a movie folder. No movie file found in "{}"'.format(directory.directory))
                 log.info('------------------------------------------------------')
 
         # Called from cli with tmdbid set
@@ -147,9 +147,9 @@ def main():
                     _download_trailer(directory)
                     log.info('------------------------------------------------------')
                 else:
-                    log.info('Trailer already downloaded for "{} ({})"'.format(directory.title, directory.year))
+                    log.info('Trailer already exists. "{}"'.format(directory.trailer_filename))
             else:
-                log.info('No movie file found in "{}"'.format(directory.directory))
+                log.info('Assuming this is not a movie folder. No movie file found in "{}"'.format(directory.directory))
 
         # Not enough data was provided in arguments to process
         else:
@@ -168,11 +168,11 @@ def main():
         directory = Movie_Folder(env['movie_dir'], title=env['title'], year=env['year'], tmdb=env['tmdbid'], imdb=env['imdbid'])
         if directory.has_movie:
             if not directory.has_trailer:
-                log.info('No Local trailer found for "{}" in {}'.format(directory.title, directory.directory))
+                log.info('No Local trailer found in "{}"'.format(directory.directory))
                 _download_trailer(directory)
                 log.info('------------------------------------------------------')
             else:
-                log.info('Trailer already downloaded for "{} ({})"'.format(directory.title, directory.year))
+                log.info('Trailer already exists. "{}"'.format(directory.trailer_filename))
                 log.info('------------------------------------------------------')
         else:
             log.info('No movie file found in "{}"'.format(directory.directory))
