@@ -44,11 +44,11 @@ class NFO(object):
             if item['type'].lower() == 'imdb':
                 return item['value']
 
-        if self._imdb.startswith('tt') and len(self._imdb) == 9:
+        if self._imdb and self._imdb.startswith('tt') and len(self._imdb) == 9:
             return self._imdb
 
         # Revert to id tag
-        if self._id.startswith('tt') and len(self._id) == 9:
+        if self._id and self._id.startswith('tt') and len(self._id) == 9:
             return self._id
         
         # if nothing was found return none
@@ -61,11 +61,11 @@ class NFO(object):
             if item['type'].lower() == 'tmdb':
                 return item['value']
         
-        if not self._tmdb.startswith('tt'):
+        if self._tmdb and not self._tmdb.startswith('tt'):
             return self._tmdb
 
         # Revert to id tag
-        if not self._id.startswith('tt'):
+        if self._id and not self._id.startswith('tt'):
             return self._id
 
         # If nothing was found return none
