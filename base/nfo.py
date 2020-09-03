@@ -15,6 +15,8 @@ class NFO(object):
     def __init__(self, path):
         self._title = None
         self._originaltitle = None
+        self._imdb = None
+        self._tmdb = None
         self._id = None
         self._year = None
         self._premiered = None
@@ -42,8 +44,11 @@ class NFO(object):
             if item['type'].lower() == 'imdb':
                 return item['value']
 
+        if self._imdb.startswith('tt') and len(self._imdb) == 9:
+            return self._imdb
+
         # Revert to id tag
-        if self._id.startswith('tt') and len(self._id) == 9 and self._id.replace('tt', '').isdigit():
+        if self._id.startswith('tt') and len(self._id) == 9:
             return self._id
         
         # if nothing was found return none
@@ -53,11 +58,14 @@ class NFO(object):
     def tmdb(self):
         # First check in uniquid list
         for item in self._uniqueids:
-            if item['type'].lower() == 'tmdb' and item['value'].isdigit():
+            if item['type'].lower() == 'tmdb':
                 return item['value']
         
+        if not self._tmdb.startswith('tt'):
+            return self._tmdb
+
         # Revert to id tag
-        if not self._id.startswith('tt') and self._id.isdigit():
+        if not self._id.startswith('tt'):
             return self._id
 
         # If nothing was found return none
@@ -96,6 +104,8 @@ class NFO(object):
         self._title = root.findtext('title')
         self._originaltitle = root.findtext('originaltitle')
         self._id = root.findtext('id')
+        self._tmdb = root.findtext('tmdbid')
+        self._imdb = root.findtext('imdbid')
         self._year = root.findtext('year')
         self._premiered = root.findtext('premiered')
         self._uniqueids = self._parse_uniqueids(root.findall('uniqueid'))
