@@ -93,11 +93,11 @@ def main():
             directory = Movie_Folder(args.directory)
             if directory.has_movie:
                 if not directory.has_trailer:
-                    log.info('No Local trailer found for "{}"'.format(directory.title))
+                    log.info('No Local trailer found in "{}"'.format(directory.directory))
                     _download_trailer(directory)
                     log.info('------------------------------------------------------')
                 else:
-                    log.info('Trailer already downloaded for "{} ({})"'.format(directory.title, directory.year))
+                    log.info('Trailer already downloaded for "{}"'.format(directory.directory))
                     log.info('------------------------------------------------------')
             else:
                 log.info('No movie file found in "{}"'.format(directory.directory))

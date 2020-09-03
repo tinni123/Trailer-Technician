@@ -90,5 +90,6 @@ def get_movie_info(tmdb_id=None, imdb_id=None, year=None, title=None):
     if not movie:
         log.warning('Not enough info provided to find movie on TMDB')
         return False
-
-    return movie
+    else:
+        log.debug('TMDB returned: title="{}", year="{}", imdb_id="{}", tmdb_id="{}"'.format(movie['title'], _release_date_to_year(movie['release_date']), movie['imdb_id'], movie['id']))
+        return movie
