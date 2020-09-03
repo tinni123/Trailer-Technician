@@ -170,6 +170,7 @@ class Movie_Folder(object):
         except IndexError:
             self.log.debug('Could not parse imdb id from filename "{}"'.format(self.movie_filename))
             self._imdb_id = None
+            return
 
         if imdb_id.startswith('tt') and len(imdb_id) == 9 and imdb_id.replace('tt', '').isdigit():
             self._imdb_id = imdb_id
