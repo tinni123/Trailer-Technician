@@ -15,16 +15,14 @@ config = get_config()
 temp_dir = os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'downloaders'), 'downloads')
 
 def _download_trailer(directory):
-    # directory is and instance of Movie_Folder
-
-    success = False
     # Build temp directory and temp trailer file path
     if not os.path.isdir(temp_dir):
         log.info('Creating temp directory. "{}"'.format(temp_dir))
         os.mkdir(temp_dir)
         os.chmod(temp_dir, 0o777)
+
+    # establish temp path for the temp trailer file
     temp_trailer_path = os.path.join(temp_dir, directory.trailer_filename)
-    
 
     # Ensure title and year are parsed.
     if not directory.title and not directory.year:
@@ -33,37 +31,44 @@ def _download_trailer(directory):
     # search apple if we know title and year.
     if config['apple']['enabled'].lower() == 'true':
         if directory.title and directory.year and config['apple']['enabled'].lower() == 'true':
-            success = download_apple(directory.year, directory.title, temp_trailer_path)
+            if download_apple(directory.year, directory.title, temp_trailer_path):
+                _move_trailer(temp_trailer_path, directory.directory)
+                _clean_temp_dir()
+                return
     else:
         log.debug('Apple download is disabled.')
 
     # Check youtube if nothing downloaded from apple
     if config['youtube']['enabled'].lower() == 'true':
-        if not success and directory.tmdb_videos:
-            success = download_youtube(directory.tmdb_videos, temp_trailer_path)
+        if directory.tmdb_videos:
+            if download_youtube(directory.tmdb_videos, temp_trailer_path):
+                _move_trailer(temp_trailer_path, directory.directory)
+                _clean_temp_dir()
         else:
             log.warning('Could not parse data from TMDB. Skipping YouTube download.')
     else:
         log.debug('Youtube download is disabled.')
 
-    if success:
-        log.info('Moving trailer {} to "{}"'.format(temp_trailer_path, directory.directory))
+def _move_trailer(temp_path, destination):
+    log.info('Moving trailer {} to "{}"'.format(temp_path, destination))
+    try:
+        shutil.move(temp_path, destination)
+        log.info('Success!! Trailer has been moved to "{}"'.format(destination))
+    except Exception as e:
+        log.warning('Could not move trailer to "{}" ERROR: {}'.format(destination, e))
+    
+def _clean_temp_dir():
+    # Clean up temp directory
+    log.debug('Cleaning temp downloads directory "{}"'.format(temp_dir))
+    for item in os.listdir(temp_dir):
+        path = os.path.join(temp_dir, item)
         try:
-            shutil.move(temp_trailer_path, directory.directory)
-            log.info('Success!! Trailer has been moved to "{}"'.format(directory.directory))
+            if os.path.isfile(path) or os.path.islink(path):
+                os.unlink(path)
+            elif os.path.isdir(path):
+                shutil.rmtree(path)
         except Exception as e:
-            log.warning('Could not move trailer to "{}" {}'.format(directory.directory, e))
-        
-        # Clean up temp directory
-        for item in os.listdir(temp_dir):
-            path = os.path.join(temp_dir, item)
-            try:
-                if os.path.isfile(path) or os.path.islink(path):
-                    os.unlink(path)
-                elif os.path.isdir(path):
-                    shutil.rmtree(path)
-            except Exception as e:
-                log.warning('Could not clean temp downloads folder "{}" ERROR: {}'.format(temp_dir, e))
+            log.warning('Could not clean temp downloads folder "{}" ERROR: {}'.format(temp_dir, e))
 
 def main():
     args = get_arguments()
