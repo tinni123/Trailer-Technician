@@ -20,8 +20,11 @@ class NFO(object):
         self._premiered = None
         self._uniqueids = []
         self._path = path
-        self.valid = False
         self._parse()
+
+    @property
+    def valid(self):
+        return self.title and self.year and self.imdb and self.tmdb
 
     @property
     def title(self):
@@ -96,7 +99,6 @@ class NFO(object):
         self._year = root.findtext('year')
         self._premiered = root.findtext('premiered')
         self._uniqueids = self._parse_uniqueids(root.findall('uniqueid'))
-        self.valid = True
         self.log.debug('NFO Parsed: title="{}", year="{}", imdb_id="{}", tmdb_id="{}"'.format(self.title, self.year, self.imdb, self.tmdb))
 
     def _parse_uniqueids(self, uniqueid_list):
