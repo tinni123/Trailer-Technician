@@ -24,7 +24,11 @@ def _download_trailer(directory):
     temp_trailer_path = os.path.join(temp_dir, directory.trailer_filename)
     
 
-    # Check to see if title and year were parsed by directory object
+    # Ensure title and year are parsed.
+    if not directory.title and not directory.year:
+        directory.get_tmdb_data()
+
+    # search apple if we know title and year.
     if directory.title and directory.year:
         success = download_apple(directory.year, directory.title, temp_trailer_path)
 
