@@ -177,7 +177,7 @@ class Movie_Folder(object):
 
     def _parse_videos(self, path):
         result = subprocess.run([
-            'ffprobe', '-v', 'error', '-show_entries',
+            'ffprobe', '-v', 'fatal', '-show_entries',
             'format=duration', '-of',
             'default=noprint_wrappers=1:nokey=1',
             path],
@@ -186,9 +186,13 @@ class Movie_Folder(object):
             )
         try:
             duration = float(result.stdout)
-        except Exception as e:
-            self.log.warning('Failed to determin video duration. Error: {}'.format(e))
-            return False
+        except ValueError:
+            self.log.warning('ffprobe failed to determine video duration. Falling back to file name parsing.')
+            if os.path.splitext(os.path.basename(path))[0].endswith('-trailer'):
+                duration = 1
+            else:
+                duration = self.min_movie_duration_sec + 1
+
         if duration >= self.min_movie_duration_sec:
             self.log.debug('Found movie file: "{}"'.format(os.path.basename(path)))
             self.movie_path = path
