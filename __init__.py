@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import sys
-from utils.version_check import Update
+from utils.updater import Update
 
 # Make sure python 3 is being used
 if sys.version_info[0] < 3:
