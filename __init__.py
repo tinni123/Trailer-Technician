@@ -15,3 +15,4 @@ DESCRIPTION = 'Download trailers for your local movie library.'
 # Check for updates
 update = Update()
 update.run()
+print('Update Complete')
