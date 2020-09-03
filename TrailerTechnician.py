@@ -180,10 +180,4 @@ def main():
 
 
 if __name__ == '__main__':
-    os.environ['radarr_eventtype'] = 'Download'
-    os.environ['radarr_movie_path'] = '/var/nfs/movies/8MM (1999)'
-    os.environ['radarr_movie_title'] = '8MM'
-    os.environ['radarr_movie_year'] = '1999'
-    os.environ['radarr_movie_imdbid'] = 'tt0134273'
-    os.environ['radarr_movie_tmdbid'] = '8224'
     main()
