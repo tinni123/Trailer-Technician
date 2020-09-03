@@ -65,7 +65,7 @@ class Update(object):
         # download new version
         if self._behind > 0:
             log.debug('Starting update.')
-            self._update()
+            # self._update()
 
         # restart script once done
         return None
@@ -82,7 +82,7 @@ class Update(object):
             return
 
         # get latest commit_hash from remote
-        output, err, exit_status = self._run_git_cmd(self._git, 'rev-parse --verify --quiet \'@{upstream}\'')
+        output, err, exit_status = self._run_git_cmd(self._git, 'rev-parse --verify --quiet {}'.format(config['updates']['git_branch']))
 
         if exit_status == 0 and output:
             cur_commit_hash = output.strip()
@@ -100,7 +100,7 @@ class Update(object):
             return
 
         # get number of commits behind and ahead (option --count not supported git < 1.7.2)
-        output, err, exit_status = self._run_git_cmd(self._git, 'rev-list --left-right \'@{upstream}\'...HEAD')
+        output, err, exit_status = self._run_git_cmd(self._git, 'rev-list --left-right {}...HEAD'.format(config['updates']['git_branch']))
 
         if exit_status == 0 and output:
 
