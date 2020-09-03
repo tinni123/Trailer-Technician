@@ -220,7 +220,10 @@ class Movie_Folder(object):
             if os.path.isfile(path):
                 if os.path.splitext(path)[1] in self.video_ext:
                     self._parse_videos(path)
-                
+
+                    # If we have a trailer already we don't need to do anything else with this directory.
+                    if self.has_movie and self.has_trailer:
+                        return
                 # Don't parse nfo if we already have data supplied at instantiation time.
                 elif os.path.splitext(path)[1] == '.nfo':
                     if not self._title or not self._year or not self._tmdb_id or not self._imdb_id:
