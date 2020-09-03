@@ -118,11 +118,6 @@ class Update(object):
             self._behind = 0
             self._ahead = 0
 
-        # logger.log(u'cur_commit = {current} % (newest_commit)= {new}, '
-        #            u'num_commits_behind = {x}, num_commits_ahead = {y}'.format
-        #            (current=self._cur_commit_hash, new=self._newest_commit_hash,
-        #             x=self._num_commits_behind, y=self._num_commits_ahead), logger.DEBUG)
-
     def _get_installed_version(self):
         output, err, exit_status = self._run_git_cmd(self._git, 'rev-parse HEAD')  # @UnusedVariable
 
