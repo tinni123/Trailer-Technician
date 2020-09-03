@@ -20,7 +20,7 @@ def _download_trailer(directory):
     if not os.path.isdir(temp_dir):
         log.info('Creating temp directory. "{}"'.format(temp_dir))
         os.mkdir(temp_dir)
-        
+        os.chmod(temp_dir, 0o777)
     temp_trailer_path = os.path.join(temp_dir, directory.trailer_filename)
     
 
