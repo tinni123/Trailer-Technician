@@ -3,9 +3,11 @@ log_level=info
 log_to_file=false
 
 [apple]
+enabled=False
 resolution=1080
 
 [youtube]
+enabled=True
 max_resolution=1080
 lang=en
 min_resolution=720
