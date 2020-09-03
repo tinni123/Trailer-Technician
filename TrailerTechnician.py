@@ -34,7 +34,7 @@ def _download_trailer(directory):
             if download_apple(directory.year, directory.title, temp_trailer_path):
                 _move_trailer(temp_trailer_path, directory.directory)
                 _clean_temp_dir()
-                return
+                return True
     else:
         log.debug('Apple download is disabled.')
 
@@ -44,10 +44,13 @@ def _download_trailer(directory):
             if download_youtube(directory.tmdb_videos, temp_trailer_path):
                 _move_trailer(temp_trailer_path, directory.directory)
                 _clean_temp_dir()
+                return True
         else:
             log.warning('Could not parse data from TMDB. Skipping YouTube download.')
     else:
         log.debug('Youtube download is disabled.')
+    
+    return False
 
 def _move_trailer(temp_path, destination):
     log.info('Moving trailer {} to "{}"'.format(temp_path, destination))
@@ -84,6 +87,10 @@ def main():
 
         # Script called from cli with recursive flag set, ignore all other flags if this is set
         if args.recursive:
+            dirs_scanned = 0
+            trailers_downloaded = 0
+            trailers_not_found = 0
+            trailers_previously_dl = 0
             log.info('Recursive mode enabled. Scanning "{}".'.format(args.directory))
             # Loop through each subdirectory
             for sub_dir in os.listdir(args.directory):
@@ -91,14 +98,24 @@ def main():
                 if os.path.isdir(path):
                     directory = Movie_Folder(path)
                     if directory.has_movie:
+                        dirs_scanned += 1
                         if not directory.has_trailer:
                             log.info('No Local trailer found in "{}"'.format(directory.directory))
-                            _download_trailer(directory)
+                            if _download_trailer(directory):
+                                trailers_downloaded += 1
+                            else:
+                                trailers_not_found += 1
                         else:
                             log.info('Trailer already exists. "{}"'.format(directory.trailer_filename))
+                            trailers_previously_dl += 1
                     else:
                         log.warning('Assuming this is not a movie folder. No movie file found in "{}"'.format(directory.directory))
                     log.info('------------------------------------------------------')
+            log.info('Done!! Enjoy your new trailers!')
+            log.info('Total directories scanned = {}'.format(dirs_scanned))
+            log.info('Total trailers downloaded = {}'.format(trailers_downloaded))
+            log.info('Total trailers not found  = {}'.format(trailers_not_found))
+            log.info('Trailers previously found = {}'.format(trailers_previously_dl))
 
         # Script called from cli without recursive flag set with directory only
         elif not args.year and not args.title:
