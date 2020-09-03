@@ -54,21 +54,24 @@ class Update(object):
             return
 
         # get versions
-        if self._get_installed_version() and self._get_new_version():
-            log.debug('Current Commit = {}'.format(self._current_hash))
-            log.debug('Newest Commit = {}'.format(self._new_hash))
-            log.debug('Commits behind = {}'.format(self._behind))
-            log.debug('Commits ahead = {}'.format(self._ahead))
-        else:
-            return
+        self._get_installed_version()
+        self._get_new_version()
+        log.debug('Current Commit = {}'.format(self._current_hash))
+        log.debug('Newest Commit = {}'.format(self._new_hash))
+        log.debug('Commits behind = {}'.format(self._behind))
+        log.debug('Commits ahead = {}'.format(self._ahead))
+    
+
 
         # download new version
         if self._behind > 0:
             log.debug('Starting update.')
             # self._update()
-
-        # restart script once done
-        return None
+            return
+        else:
+            log.debug('No Update needed.')
+            # restart script once done
+            return None
 
     def _get_new_version(self):
         self._new_hash = None
@@ -83,7 +86,7 @@ class Update(object):
 
         # get latest commit_hash from remote
         output, err, exit_status = self._run_git_cmd(self._git, 'rev-parse --verify --quiet {}'.format(config['updates']['git_branch']))
-
+        
         if exit_status == 0 and output:
             cur_commit_hash = output.strip()
 
@@ -101,9 +104,8 @@ class Update(object):
 
         # get number of commits behind and ahead (option --count not supported git < 1.7.2)
         output, err, exit_status = self._run_git_cmd(self._git, 'rev-list --left-right {}...HEAD'.format(config['updates']['git_branch']))
-
+        log.debug(output)
         if exit_status == 0 and output:
-
             try:
                 self._behind = int(output.count('<'))
                 self._ahead = int(output.count('>'))
@@ -112,6 +114,9 @@ class Update(object):
                 # logger.log(u'git didn\'t return numbers for behind and ahead, not using it', logger.DEBUG)
                 log.debug('git didn\'t return numbers for behind and ahead, not using it')
                 return
+        else:
+            self._behind = 0
+            self._ahead = 0
 
         # logger.log(u'cur_commit = {current} % (newest_commit)= {new}, '
         #            u'num_commits_behind = {x}, num_commits_ahead = {y}'.format
