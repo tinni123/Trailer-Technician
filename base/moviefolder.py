@@ -152,24 +152,27 @@ class Movie_Folder(object):
 
     def _get_year_from_directory(self):
         try:
-            year = os.path.basename(self.directory).split('(')[1].split(')')[0].strip()
+            self._year = os.path.basename(self.directory).split('(')[1].split(')')[0].strip()
         except IndexError:
             self.log.debug('Could not parse year from "{}"'.format(os.path.basename(self.directory)))
-            year = None
-        
-        return year
+            self._year = None
 
     def _get_title_from_directory(self):
         try:
             self._title = os.path.basename(self.directory).split('(')[0].strip()
         except IndexError:
             self.log.debug('Could not parse title from "{}"'.format(os.path.basename(self.directory)))
+            self._title = None
 
     def _get_imdb_from_filename(self):
         try:
-            self._imdb_id = self.movie_filename.split('(')[1].split(')')[0].strip()
+            imdb_id = self.movie_filename.split('(')[1].split(')')[0].strip()
         except IndexError:
             self.log.debug('Could not parse imdb id from filename "{}"'.format(self.movie_filename))
+            self._imdb_id = None
+
+        if imdb_id.startswith('tt') and len(imdb_id) == 9 and imdb_id.replace('tt', '').isdigit():
+            self._imdb_id = imdb_id
 
     def _parse_videos(self, path):
         result = subprocess.run([
